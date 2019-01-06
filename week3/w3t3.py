@@ -14,7 +14,6 @@ def gradDescent(X, Y, initial_w, max_steps, k, C, epsilon):
 
 
 def vectorizedGradDescent(X, Y, initial_w, max_steps, k, C, epsilon):
-    #X_tmp = X[X.columns[::-1]];
     Xt = np.transpose(X);
     kc = k * C;
     num_examples = X.shape[0];
@@ -25,15 +24,18 @@ def vectorizedGradDescent(X, Y, initial_w, max_steps, k, C, epsilon):
     old_w = initial_w.copy();
     steps_distance = 0.0;
     last_iteration = 0;
+
+    y_mul_feature = [None] * num_features;
+    for feature_idx in range(0, num_features):
+        cur_feature = X.iloc[:, feature_idx:feature_idx + 1];
+        y_mul_feature[feature_idx] = np.multiply(cur_feature, Y).iloc[:, 0].values;
     for grad_step in range(0, max_steps):
         w_mul_x = np.dot(w, Xt);
         w_mul_x_mul_y = np.multiply(w_mul_x, Y.iloc[:,0].values);
         sigmoid_val = sigmoid(w_mul_x_mul_y);
         braces_val = np.add(1.0, np.negative(sigmoid_val));
         for feature_idx in range(0, num_features):
-            cur_feature = X.iloc[:, feature_idx:feature_idx + 1];
-            y_mul_feature = np.multiply(cur_feature, Y).iloc[:,0].values;
-            tmp = np.multiply(y_mul_feature, braces_val);
+            tmp = np.multiply(y_mul_feature[feature_idx], braces_val);
             sum_val = np.sum(tmp);
             w[feature_idx] += k_div_l * sum_val - kc * w[feature_idx];
         steps_distance = euclidean(old_w, w);
